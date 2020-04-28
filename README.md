@@ -5,6 +5,8 @@ A complementary data analysis project for my python Instagram bot
 
 ![Artem's Network](./images/artem_network.png)
 
+![Following Ranking](./images/users_following.png)
+
 ## Built using:
 * Bokeh – used for data visualisation
 * NetworkX – used to create a graph from obtained list of followers
