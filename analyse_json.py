@@ -6,7 +6,7 @@ from bokeh.io import show
 from bokeh.models import Plot, Range1d, MultiLine, Circle, HoverTool, TapTool, BoxSelectTool, PanTool, WheelZoomTool, ResetTool
 from bokeh.models.graphs import NodesAndLinkedEdges
 from bokeh.palettes import Plasma11, Greys4
-from bokeh.plotting import from_networkx
+from bokeh.plotting import from_networkx, figure, ColumnDataSource
 from bokeh.transform import linear_cmap
 
 class Visualise():
@@ -19,22 +19,35 @@ class Visualise():
 
 	def bar_total_following(self, user_dict, sort=0, disp_avg=0):
 		if sort:
-			temp_lst = self.sort_by_val_len(user_dict)
+			temp_list = self.sort_by_val_len(user_dict)
 		else:
-			temp_lst = list(user_dict.items())
+			temp_list = list(user_dict.items())
 		user_list = []
 		user_count = []
-		for x in temp_lst:
+		for x in temp_list:
 			user_list.append(x[0])
 			user_count.append(len(x[1]))
-		fig = go.Figure()
-		fig.add_trace(go.Bar(name='followng', x=user_list, y=user_count))
+		bar = figure(
+			x_range=user_list,
+			plot_width=1350,
+			plot_height=720)
+		bar.add_tools(
+			HoverTool(tooltips=[('User','@user_list'),
+				('following', '@user_count')]),
+			BoxSelectTool(),
+			TapTool())
+		data = {
+			'user_count': user_count,
+			'user_list': user_list
+		}
+		bar.vbar(x='user_list',top='user_count', width=0.8, source=data)
+		bar.xgrid.grid_line_color = None
+		bar.xaxis.major_label_orientation = 1
 		if disp_avg:
 			avg = int(sum(user_count)/len(user_count))
-			lst = [avg] * len(user_count)
-			fig.add_trace(go.Scatter(name='average', x=user_list, y=lst))
-		fig.show()
-	
+			bar.line(x=user_list, y=avg, color='red', line_width=2)
+		show(bar)
+
 	def add_nodes(self, graph, user_dict):
 		for key in user_dict:
 			graph.add_node(key)
@@ -105,5 +118,5 @@ class Visualise():
 with open('user_dict.json', 'r') as fd:
 	user_dict = json.load(fd)
 bar = Visualise()
-bar.network_total_following(user_dict, n_neighbors=6) # takes user dictionary, optional args: n_neigbors
-# bar.bar_total_following(user_dict, sort=False, disp_avg=False) # takes user dictionary, optional args: sort, diplay_average
+# bar.network_total_following(user_dict, n_neighbors=6) # takes user dictionary, optional args: n_neigbors
+bar.bar_total_following(user_dict, sort=True, disp_avg=True) # takes user dictionary, optional args: sort, diplay_average
