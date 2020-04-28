@@ -1,17 +1,17 @@
 import json
+
 import networkx as nx
-from bokeh.io import output_file, show
+
+from bokeh.io import show
 from bokeh.models import Plot, Range1d, MultiLine, Circle, HoverTool, TapTool, BoxSelectTool, PanTool, WheelZoomTool, ResetTool
 from bokeh.models.graphs import NodesAndLinkedEdges
-from bokeh.palettes import Plasma11
-from bokeh.palettes import Greys4
+from bokeh.palettes import Plasma11, Greys4
 from bokeh.plotting import from_networkx
 from bokeh.transform import linear_cmap
-from bokeh.models import ColumnDataSource
 
 class Visualise():
 	def __init__(self):
-		return None
+		pass
 
 	def sort_by_val_len(self, u_dict):
 		sorted_lst = sorted(u_dict.items(), key=lambda item : len(item[1]), reverse=True)
@@ -52,12 +52,12 @@ class Visualise():
 			edge_list.append(len(list(graph.neighbors(node))))
 		return edge_list
 
-	def network_total_following(self, user_dict):
+	def network_total_following(self, user_dict, n_neighbors=5):
 		graph = nx.Graph()
 		self.add_nodes(graph, user_dict)
 		self.add_edges(graph, user_dict)
 		for node in list(graph.nodes()):
-			if len(list(graph.neighbors(node))) < 5:
+			if len(list(graph.neighbors(node))) < n_neighbors:
 				graph.remove_node(node)
 		plot = Plot(
 			plot_width=1140,
@@ -73,12 +73,10 @@ class Visualise():
 			PanTool(),
 			WheelZoomTool(),
 			ResetTool())
-		graph_render = from_networkx(graph, nx.spring_layout, scale=1.8, center=(0,0))
+		graph_render = from_networkx(graph, nx.spring_layout, scale=2.5, center=(0,0))
 		graph_render.node_renderer.data_source.data['name'] = list(graph.nodes())
 		list_edges = self.get_list_of_edges(graph)
 		graph_render.node_renderer.data_source.data['neighbors'] = list_edges
-		print(min(list_edges))
-		print(max(list_edges))
 		mapper = linear_cmap('neighbors', palette=Plasma11, low=min(list_edges), high=max(list_edges))
 		graph_render.node_renderer.glyph = Circle(
 			size=10,
@@ -107,5 +105,5 @@ class Visualise():
 with open('user_dict.json', 'r') as fd:
 	user_dict = json.load(fd)
 bar = Visualise()
-bar.network_total_following(user_dict)
+bar.network_total_following(user_dict, n_neighbors=6) # takes user dictionary, optional args: n_neigbors
 # bar.bar_total_following(user_dict, sort=False, disp_avg=False) # takes user dictionary, optional args: sort, diplay_average
