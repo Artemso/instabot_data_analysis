@@ -16,4 +16,4 @@ This project gave me an interesting insight on connections between my friends an
 * Famous figures and brands tend to locate in the central area connecting different groups of people
 
 ### Use cases:
-* One could target a marketing campaign towards users who share similar interests and/or connected with each other.
+* One could target a marketing campaign towards users who share similar interests(blogs, brands, etc.) and/or connected with each other.
